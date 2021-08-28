@@ -179,7 +179,7 @@ export default function Home({ listCourier }) {
                     className="mx-auto"
                   />
                   <div className="space-y-2 w-full md:w-10/12 lg:w-8/12 mx-auto">
-                    <h4 className="m-0 text-xl">Belum ada data</h4>
+                    <span className="m-0 block font-semibold text-xl">Belum ada data</span>
                     <p>
                       Silahkan cari paketmu terlebih dahulu dengan memasukan
                       nomor resi dan pilih kurir!
