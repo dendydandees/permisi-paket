@@ -1,7 +1,13 @@
-import 'tailwindcss/tailwind.css'
+import '../styles/globals.css';
+// context
+import { TrackingProvider } from '../context/tracking';
 
 function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+  return (
+    <TrackingProvider>
+      <Component {...pageProps} />
+    </TrackingProvider>
+  );
 }
 
-export default MyApp
+export default MyApp;

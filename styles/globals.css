@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  @apply transition-all duration-300;
+}
+
+body {
+  @apply bg-gray-200 text-gray-800 prose overflow-x-hidden;
+}
+
+p {
+  @apply text-gray-600;
+}
+
+@media screen and (min-width: 768px) {
+  .history:first-child .description::before {
+    background-color: #f59e0b;
+    box-shadow: 0 0 0 4px #fcd34d;
+  }
+
+  .history .description::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #6b7280;
+    left: -32px;
+    top: 8px;
+    box-shadow: 0 0 0 4px #d1d5db;
+    z-index: 2;
+  }
+
+  .history .description::after {
+    content: '';
+    position: absolute;
+    left: -28px;
+    bottom: -24px;
+    width: 2px;
+    top: 8px;
+    height: calc(100% + 24px);
+    border-left: thin solid var(--N75, #d1d5db);
+    z-index: 1;
+  }
+
+  .history:last-child .description::after {
+    content: none;
+  }
+}
+
+@layer base {
+  .btn-primary {
+    @apply py-2 px-4 bg-yellow-500 hover:bg-yellow-600 font-bold rounded-md border-transparent shadow ring-0 focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500;
+  }
+  .input-solid {
+    @apply w-full block rounded-md bg-gray-200 border-transparent shadow focus:border-yellow-500 focus:bg-white focus:ring-0;
+  }
+  .select-solid {
+    @apply block w-auto rounded-md bg-gray-200 border-transparent shadow focus:border-yellow-500 focus:bg-white focus:ring-0;
+  }
+}

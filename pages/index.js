@@ -1,82 +1,218 @@
-import Head from 'next/head'
+import Head from 'next/head';
+// components
+import Layout, { title, description } from '../components/layout';
+import Header from '../components/index/header';
+import Form from '../components/index/form';
+import { Icon } from '@iconify/react';
+// data backup
+import { courier } from '../data/courier.js';
+// import { trackingSicepatSample } from '../data/trackingSicepatSample.js';
+// context
+import { useTracking } from '../context/tracking';
+// date-fns
+import { format, parseISO } from 'date-fns';
+import { id } from 'date-fns/locale';
 
-export default function Home() {
+export default function Home({ listCourier }) {
+  // data backup
+  // const {
+  //   data: { summary, detail, history },
+  // } = trackingSicepatSample;
+
+  // context
+  const { tracking, error } = useTracking();
+  const { summary, detail, history } = tracking;
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <Layout>
+      <Header title={title} description={description}>
+        <Form listCourier={listCourier} />
+      </Header>
 
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
+      {/* if any tracking */}
+      {Object.entries(tracking).length !== 0 ? (
+        <section className="container mx-auto my-12">
+          <article className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-4">
+            <div className="lg:col-span-4 bg-white rounded-md shadow-md p-4 space-y-10 self-start">
+              <h5 className="font-bold text-xl">Info Pengiriman</h5>
+              <table className="table-auto">
+                <tbody>
+                  <tr className="border-0">
+                    <td>Kurir</td>
+                    <td>:</td>
+                    <td>
+                      {summary?.courier}
+                      {summary.service ? ` - ${summary?.service}` : ''}
+                    </td>
+                  </tr>
+                  <tr className="border-0">
+                    <td>No Resi</td>
+                    <td>:</td>
+                    <td>{summary?.awb}</td>
+                  </tr>
+                  <tr className="border-0">
+                    <td>Tanggal Pengiriman</td>
+                    <td>:</td>
+                    <td>
+                      {format(
+                        parseISO(summary?.date),
+                        "d MMM yyyy, kk:mm 'WIB'",
+                        {
+                          locale: id,
+                        },
+                      )}
+                    </td>
+                  </tr>
+                  <tr className="border-0">
+                    <td>Pengirim</td>
+                    <td>:</td>
+                    <td>
+                      <h6 className="font-semibold">
+                        {detail?.shipper}
+                        <span className="block font-normal">
+                          {detail?.origin}
+                        </span>
+                      </h6>
+                    </td>
+                  </tr>
+                  <tr className="border-0">
+                    <td>Penerima</td>
+                    <td>:</td>
+                    <td>
+                      <h6 className="font-semibold">
+                        {detail?.receiver}
+                        <span className="block font-normal">
+                          {detail?.destination}
+                        </span>
+                      </h6>
+                    </td>
+                  </tr>
+                  <tr className="border-0">
+                    <td>Harga Ongkir</td>
+                    <td>:</td>
+                    <td>Rp. {summary?.amount}</td>
+                  </tr>
+                  <tr className="border-0">
+                    <td>Berat Barang</td>
+                    <td>:</td>
+                    <td>
+                      {summary?.weight.match(/[^\d]/g)
+                        ? summary?.weight.replace(/[^\d]/g, '')
+                        : `${summary?.weight} Kg`}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="lg:col-span-8 bg-white rounded-md shadow-md p-4 space-y-10">
+              <h5 className="font-bold capitalize text-xl">
+                Status Pengiriman :{' '}
+                <span className="text-yellow-700">
+                  {`${summary?.status.charAt(0)}${summary?.status
+                    .slice(1)
+                    .toLowerCase()}`}
+                </span>
+              </h5>
+              <div className="space-y-6">
+                {history.map((history, index) => {
+                  return (
+                    <div
+                      key={index}
+                      className="history block md:flex items-start justify-between"
+                    >
+                      <p
+                        className={`m-0 relative block mr-3 ${
+                          index === 0 ? ' text-yellow-700' : ''
+                        }`}
+                      >
+                        {format(parseISO(history?.date), 'EEEE, d MMM yyyy', {
+                          locale: id,
+                        })}
+                      </p>
+                      <div
+                        className={`description relative w-full md:w-6/12 lg:w-8/12 ${
+                          index === 0 ? ' text-yellow-700' : ''
+                        }`}
+                      >
+                        <p
+                          className={`m-0 ${
+                            index === 0 ? ' text-yellow-700' : ''
+                          }`}
+                        >
+                          {format(parseISO(history?.date), "kk:mm 'WIB'", {
+                            locale: id,
+                          })}
+                        </p>
+                        <h6 className="block font-semibold">{history?.desc}</h6>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </article>
+        </section>
+      ) : (
+        <section className="my-12">
+          <div className="container mx-auto">
+            <div className="bg-white rounded-md shadow-md px-4 py-10 w-full md:w-8/12 lg:w-6/12 mx-auto text-center space-y-4">
+              {/* if error 400 or api key expired */}
+              {error.status === 400 ? (
+                <>
+                  <p className="text-4xl m-0">😭</p>
+                  <div className="space-y-2 w-full md:w-10/12 lg:w-8/12 mx-auto">
+                    <h4 className="m-0 text-lg">Sedang dalam gangguan</h4>
+                    <p>
+                      Mohon maaf sistem sedang dalam gangguan, coba lagi nanti
+                      ya!
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Icon
+                    icon="fa-solid:search"
+                    inline
+                    width="32px"
+                    height="32px"
+                    color="#D1D5DB"
+                    className="mx-auto"
+                  />
+                  <div className="space-y-2 w-full md:w-10/12 lg:w-8/12 mx-auto">
+                    <h4 className="m-0 text-xl">Belum ada data</h4>
+                    <p>
+                      Silahkan cari paketmu terlebih dahulu dengan memasukan
+                      nomor resi dan pilih kurir!
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+    </Layout>
+  );
+}
 
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="p-3 font-mono text-lg bg-gray-100 rounded-md">
-            pages/index.js
-          </code>
-        </p>
+export async function getStaticProps() {
+  const apiKey = process.env.NEXT_PUBLIC_APIKEY_BINDERBYTE;
+  const binderbyteUrl = process.env.NEXT_PUBLIC_BINDERBYTE_URL;
 
-        <div className="flex flex-wrap items-center justify-around max-w-4xl mt-6 sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and API.
-            </p>
-          </a>
+  const res = await fetch(`${binderbyteUrl}/list_courier?api_key=${apiKey}`);
+  const data = await res.json();
 
-          <a
-            href="https://nextjs.org/learn"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
+  if (data.status === 400) {
+    return {
+      props: {
+        listCourier: courier,
+      },
+    };
+  }
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className="flex items-center justify-center w-full h-24 border-t">
-        <a
-          className="flex items-center justify-center"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="h-4 ml-2" />
-        </a>
-      </footer>
-    </div>
-  )
+  return {
+    props: {
+      listCourier: data,
+    },
+  };
 }
